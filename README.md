@@ -1,0 +1,2 @@
+# MFC_independent_diamonds_Triangle_version
+三角形独立钻石游戏
