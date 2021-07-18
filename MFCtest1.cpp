@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-//³ÌĞò¿ò¼Ü
+//ç¨‹åºæ¡†æ¶
 class CMyFrameWnd : public CFrameWnd {
 	DECLARE_MESSAGE_MAP()
 public:
@@ -17,7 +17,7 @@ public:
 	time_t timenow, timeold;
 };
 
-//ÏûÏ¢·´Éäºê±í
+//æ¶ˆæ¯åå°„å®è¡¨
 BEGIN_MESSAGE_MAP(CMyFrameWnd,CFrameWnd)
 ON_WM_CREATE()
 ON_WM_MOUSEMOVE()
@@ -28,7 +28,7 @@ ON_WM_SIZE()
 ON_WM_PAINT()
 END_MESSAGE_MAP()
 
-//ÏûÏ¢·´Éäºê±í¶ÔÓ¦µÄ´¦Àíº¯Êı µ«ÊÇÃ»ÓĞON_WM_PAINT¶ÔÓ¦µÄÏîÄ¿
+//æ¶ˆæ¯åå°„å®è¡¨å¯¹åº”çš„å¤„ç†å‡½æ•°
 int CMyFrameWnd::OnCreate(LPCREATESTRUCT p) {
 	SetTimer(1, 13, NULL);
 	timenow=clock();
@@ -60,20 +60,18 @@ void CMyFrameWnd::OnSize(UINT uint, int x, int y) {
 }
 
 
-//»­±³¾°
-void mutidotexample(HDC hdc, CPoint pt, char*c, int clen, CRect rlimit, int ot, int num = 30, int pms = 700000, int speed = 1) {
-	struct DEST { double x, y;int t, k = 0, v = 0; };
-	static DEST *p = NULL, p0; static int size = 0;
-	static CRect rboard0 = { -50,-50,50,50 }, rboard;
-	rboard = rlimit + rboard0;
-	int i, scale = 20;
+//èƒŒæ™¯
+void mutidotexample(CDC *pDC, CPoint pt, char*c, int clen, CRect rlimit, int ot, int num = 30, int pms = 700000, int speed = 1) {
+	struct DEST { double x, y; int t, k, v; }p0 = { 0,0,-1,0,0 };
+	DEST static *p = NULL; static int size = 0;
+	CRect rboard0 = { -50,-50,50,50 }, rboard = rlimit + rboard0;//åŒºåŸŸå¤§å°
+	int i, scale = 20;//æ–‡æœ¬å¤§å°
 	//new
-	if (p == NULL) { 
-		p0.x = 0; p0.y = 0; p0.t = -1; p0.v = 0; p0.k = 0;
+	if (p == NULL) {
 		size = num; p = new DEST[size]; 
 		for (i = 0; i < size; i++) {
-			p[i].x = rand() % (rboard.right - rboard.left) + rboard.left;
-			p[i].y = rand() % (rboard.bottom - rboard.top) + rboard.top;
+			p[i].x = rand() % (rboard.Width()) + rboard.left;
+			p[i].y = rand() % (rboard.Height()) + rboard.top;
 			p[i].t = pms;
 			p[i].v = (rand() % 4 + 3) * scale;
 			p[i].k = rand() % 64 + 192;
@@ -81,14 +79,14 @@ void mutidotexample(HDC hdc, CPoint pt, char*c, int clen, CRect rlimit, int ot, 
 	}
 	//fun
 	switch (2) {
-	case 1://À©É¢Ğ§¹û
+	case 1://æ‰©æ•£æ•ˆæœ
 		for (i = 0; i < size; i++) {
 			p[i].x += (-1 * ot)*(pt.x - p[i].x) / (10000.0 / speed);
 			p[i].y += (-1 * ot)*(pt.y - p[i].y) / (10000.0 / speed);
 
 		}
 		break;
-	case 2://ÉÏÉıĞ§¹û
+	case 2://ä¸Šå‡æ•ˆæœ
 		for (i = 0; i < size; i++) {
 			p[i].y += (-1 * ot)*(p[i].v) / (1000.0 / speed);
 			p[i].t += (-1 * ot);
@@ -98,148 +96,193 @@ void mutidotexample(HDC hdc, CPoint pt, char*c, int clen, CRect rlimit, int ot, 
 	//check
 	for (i = 0; i < size; i++) {
 		p[i].t += (-1 * ot);
-		if (p[i].y > rboard.bottom || p[i].y < rboard.top-p[i].v)p[i].t = -1;
-		if (p[i].x > rboard.right || p[i].x < rboard.left-p[i].v)p[i].t = -1;
+		if (p[i].y > rboard.bottom || p[i].y < rboard.top - p[i].v)p[i].t = -1;
+		if (p[i].x > rboard.right || p[i].x < rboard.left - p[i].v)p[i].t = -1; 
 		if (p[i].t <= 0) {
-			p[i].x = rand() % (rboard.right - rboard.left) + rboard.left;
+			p[i].x = rand() % (rboard.Width()) + rboard.left;
 			p[i].y = rboard.bottom;
 			p[i].t = pms;
 			p[i].v = (rand() % 4 + 3) * scale;
 			p[i].k = rand() % 64 + 192;
 		}
 	}
-	//»æÖÆ
-	LOGFONT logfont;
-	ZeroMemory(&logfont, sizeof(LOGFONT));
-	logfont.lfCharSet = GB2312_CHARSET;
-	SetBkMode(hdc, TRANSPARENT);
-
-	for (i = 0; i < size; i++){
-		logfont.lfHeight = -p[i].v; //ÉèÖÃ×ÖÌåµÄ´óĞ¡
-		HFONT hFont = CreateFontIndirect(&logfont);
-		SelectObject(hdc, hFont);
-		DeleteObject(hFont);
-	::SetTextColor(hdc, RGB(p[i].k, 102, 170));
-	switch (2) {
-	case 1:
-		::TextOutA(hdc, (int)p[i].x, (int)p[i].y, c, clen);
-		break;
-	case 2:
-		::TextOutA(hdc, (int)(p[i].x + (pt.x - (rlimit.right + rlimit.left) / 2)*rboard0.right * 2 / rlimit.right)
-			, (int)(p[i].y + (pt.y - (rlimit.bottom + rlimit.top) / 2)*rboard0.bottom * 2 / rlimit.bottom)
-			, c, clen);
-		break;
-	}
+	//ç»˜åˆ¶
+	CFont cfbg;//å­—ä½“
+	pDC->SetBkMode(TRANSPARENT);//é€æ˜èƒŒæ™¯è‰²
+	for (i = 0; i < size; i++) {
+		cfbg.CreatePointFont(6*p[i].v, (LPCTSTR)"é»‘ä½“");//å­—ä½“å¤§å°ä¸æ ¼å¼
+		pDC->SelectObject(cfbg);
+		pDC->SetTextColor(RGB(p[i].k, 102, 170));//å­—ä½“é¢œè‰²
+		switch (2) {
+		case 1:
+			pDC->TextOut((int)p[i].x, (int)p[i].y, c);
+			break;
+		case 2:
+			pDC->TextOut((int)(p[i].x + (pt.x - (rlimit.right + rlimit.left) / 2)*rboard0.right * 2 / rlimit.right)
+				, (int)(p[i].y + (pt.y - (rlimit.bottom + rlimit.top) / 2)*rboard0.bottom * 2 / rlimit.bottom)
+				, c);
+			break;
+		}
+		cfbg.DeleteObject();//é‡Šæ”¾å­—ä½“
 	}
 	return;
 }
 
-//»­Èı½ÇĞÎ¶ÀÁ¢×êÊ¯ÓÎÏ·
+//æ£‹ç›˜
 class CHESSMFC :public CHESS {
 private:
 	int i, j, k;
 public:
-	CRect Ö÷½çÃæ, ÆåÅÌ, °´Å¥Çø, ÎÄ±¾Çø;
-	CRect *¸÷Æå×Ó, *¸÷°´Å¥;
-	int °´Å¥ÊıÁ¿;
+	CRect ä¸»ç•Œé¢, æ£‹ç›˜, æŒ‰é’®åŒº, æ–‡æœ¬åŒº;
+	CRect *å„æ£‹å­, *å„æŒ‰é’®;
+	int æŒ‰é’®æ•°é‡;
 
 	void cnew(int Y); void cdelete(); void creset();
 
-	void dsetmain(CRect rlimit); //¸üĞÂ¸÷Í¼ÏñµÄCRect(¸üĞÂÌõ¼ş£º´°¿Ú´óĞ¡¸Ä±ä)
+	void dset(CRect rlimit); //æ›´æ–°CRect(æ›´æ–°æ¡ä»¶ï¼šçª—å£å¤§å°æ”¹å˜)
 
-	void inputcheck(CPoint pt);//¼ì²éÊó±êÊäÈë(¼ì²éÌõ¼ş£ºÊó±êµã»÷)
+	void inputcheck(CPoint pt);//æ£€æŸ¥é¼ æ ‡è¾“å…¥(æ£€æŸ¥æ¡ä»¶ï¼šé¼ æ ‡ç‚¹å‡»)
 
-	void dc(CDC *pDC); void dbutton(CDC *pDC); void dp(CDC *pDC);//»æÍ¼(»æÍ¼Ìõ¼ş£ºÍ¼Ïñ·¢Éú±ä»¯)
-	void dhighlight(CDC *pDC);
+	void dc(CDC *pDC); 
+	void dbutton(CDC *pDC); void dbutton_text(CDC *pDC, int ord, COLORREF textrgb, char*text); 
+	void dp(CDC *pDC);//ç»˜å›¾(ç»˜å›¾æ¡ä»¶ï¼šå›¾åƒå‘ç”Ÿå˜åŒ–)
+	//void dhighlight(CDC *pDC);
 	void dmain(CDC *pDC);
-	void startgame_MFC();
 };
 void CHESSMFC::cnew(int Y){
 	this->CHESS::cnew(Y);
-	°´Å¥ÊıÁ¿ = 3;
-	¸÷Æå×Ó = new CRect[size]; ¸÷°´Å¥ = new CRect[°´Å¥ÊıÁ¿];
+	æŒ‰é’®æ•°é‡ = 3;
+	å„æ£‹å­ = new CRect[size]; å„æŒ‰é’® = new CRect[æŒ‰é’®æ•°é‡];
 	return;
 }
 void CHESSMFC::cdelete(){
-	delete[]¸÷Æå×Ó; delete[]¸÷°´Å¥;
+	delete[]å„æ£‹å­; delete[]å„æŒ‰é’®;
 	return CHESS::cdelete();
 }
 void CHESSMFC::creset(){
 	return CHESS::creset();
 }
-//È·¶¨ÇøÓò
-void CHESSMFC::dsetmain(CRect rlimit){
-	//½çÃæÉè¼Æ1.0
-	Ö÷½çÃæ = { 0,0,1469,827 };
-	ÆåÅÌ = { 656,120,1338,708 };
-	°´Å¥Çø = { 133,103,545,203 };
-	ÎÄ±¾Çø = { 133,295,545,708 };
-	//Ëõ·ÅÏµÊı
-	CSize r1, r2; r1 = rlimit.Size(); r2 = Ö÷½çÃæ.Size();
+//ç¡®å®šåŒºåŸŸ
+void CHESSMFC::dset(CRect rlimit){
+	//ç•Œé¢è®¾è®¡1.0
+	ä¸»ç•Œé¢ = { 0,0,1469,827 };
+	æ£‹ç›˜ = { 656,120,1338,708 };
+	æŒ‰é’®åŒº = { 133,103,545,203 };
+	æ–‡æœ¬åŒº = { 133,295,545,708 };
+	//ç¼©æ”¾ç³»æ•°
+	CSize r1, r2; r1 = rlimit.Size(); r2 = ä¸»ç•Œé¢.Size();
 	if (r1.cx < 640 || r1.cy < 480)r1.SetSize(640, 480);
 	double fx = r1.cx*1.0 / r2.cx, fy = r1.cy*1.0 / r2.cy;
 	if (fx > fy) { r1.cx = r1.cy; r2.cx = r2.cy; }
-	//Ëõ·Å
-	Ö÷½çÃæ.MulDiv(r1.cx, r2.cx);
-	ÆåÅÌ.MulDiv(r1.cx, r2.cx);
-	°´Å¥Çø.MulDiv(r1.cx, r2.cx);
-	ÎÄ±¾Çø.MulDiv(r1.cx, r2.cx);
-	//¸÷Æå×Ó
-	int x, y, f, dx = ÆåÅÌ.Width() / ymax, dy = ÆåÅÌ.Height() / ymax;
-	CRect Æå×Ó; Æå×Ó.SetRect(0, 0, dx, dy); Æå×Ó.OffsetRect(ÆåÅÌ.TopLeft()); Æå×Ó.DeflateRect(10, 10, 10, 10);
+	//ç¼©æ”¾
+	ä¸»ç•Œé¢ = ä¸»ç•Œé¢.MulDiv(r1.cx, r2.cx);
+	æ£‹ç›˜ = æ£‹ç›˜.MulDiv(r1.cx, r2.cx);
+	æŒ‰é’®åŒº = æŒ‰é’®åŒº.MulDiv(r1.cx, r2.cx);
+	æ–‡æœ¬åŒº = æ–‡æœ¬åŒº.MulDiv(r1.cx, r2.cx);
+	//å„æ£‹å­
+	int x, y, f, dx = æ£‹ç›˜.Width() / ymax, dy = æ£‹ç›˜.Height() / ymax;
+	CRect æ£‹å­; æ£‹å­.SetRect(0, 0, dx, dy); æ£‹å­.OffsetRect(æ£‹ç›˜.TopLeft()); æ£‹å­.DeflateRect(æ£‹å­.MulDiv(1, 8).Size());
 	for (i = 0; i < size; i++) {
 		fdir(i + 1, &x, &y, &f);
-		¸÷Æå×Ó[i] = Æå×Ó;
-		¸÷Æå×Ó[i].OffsetRect((int)(((ymax - y)*1.0 / 2 + x - 1)*dx), (y - 1)*dy);
+		å„æ£‹å­[i] = æ£‹å­;
+		å„æ£‹å­[i].OffsetRect((int)(((ymax - y)*1.0 / 2 + x - 1)*dx), (y - 1)*dy);
 	}
-	//¸÷°´Å¥
-	dx = °´Å¥Çø.Width() / °´Å¥ÊıÁ¿;
-	CRect Ò»¸ö°´Å¥; Ò»¸ö°´Å¥.SetRect(0, 0, dx, °´Å¥Çø.Height()); Ò»¸ö°´Å¥.OffsetRect(°´Å¥Çø.TopLeft());
-	for (i = 0; i < °´Å¥ÊıÁ¿; i++) {
-		¸÷°´Å¥[i] = Ò»¸ö°´Å¥;
-		¸÷°´Å¥[i].OffsetRect(i*dx, 0);
+	//å„æŒ‰é’®
+	dx = æŒ‰é’®åŒº.Width() / æŒ‰é’®æ•°é‡;
+	CRect ä¸€ä¸ªæŒ‰é’®; ä¸€ä¸ªæŒ‰é’®.SetRect(0, 0, dx, æŒ‰é’®åŒº.Height()); ä¸€ä¸ªæŒ‰é’®.OffsetRect(æŒ‰é’®åŒº.TopLeft());
+	for (i = 0; i < æŒ‰é’®æ•°é‡; i++) {
+		å„æŒ‰é’®[i] = ä¸€ä¸ªæŒ‰é’®;
+		å„æŒ‰é’®[i].OffsetRect(i*dx, 0);
 	}
 	return;
 }
-//È·¶¨ÊäÈë
+//ç¡®å®šè¾“å…¥
 void CHESSMFC::inputcheck(CPoint pt){
-	//int±äÁ¿£º±äÁ¿Ãûinput Ä¬ÈÏÖµÎª0£¬·Ç0Öµ´ú±íµã»÷ÁËÆå×Ó»ò°´Å¥
-	//±¾º¯Êı£º¸ºÔğ¼ì²éÊó±êÊäÈë¡£ÈôÓĞÓĞĞ§ÊäÈëÔò¸Ä±äinputµÄÖµ¡£
-	//º¯Êıfmain£º¸ºÔğ½«inputµÄÖµ¸Ä»Ø0¡£²¢ÇÒ¸ºÔğÖ´ĞĞ¶ÔÓ¦µÄ¶¯×÷¡£
-	//¼ì²é ¸÷Æå×ÓµÄÇøÓò
+	//intå˜é‡ï¼šå˜é‡åinput é»˜è®¤å€¼ä¸º0ï¼Œé0å€¼ä»£è¡¨ç‚¹å‡»äº†æ£‹å­æˆ–æŒ‰é’®
+	//æœ¬å‡½æ•°ï¼šè´Ÿè´£æ£€æŸ¥é¼ æ ‡è¾“å…¥ã€‚è‹¥æœ‰æœ‰æ•ˆè¾“å…¥åˆ™æ”¹å˜inputçš„å€¼ã€‚
+	//å‡½æ•°fmainï¼šè´Ÿè´£å°†inputçš„å€¼æ”¹å›0ã€‚å¹¶ä¸”è´Ÿè´£æ‰§è¡Œå¯¹åº”çš„åŠ¨ä½œã€‚
+	//æ£€æŸ¥ å„æ£‹å­çš„åŒºåŸŸ
 	for (i = 0; i < size; i++) 
-		if(¸÷Æå×Ó[i].PtInRect(pt)){
-			//TODO:¸üºÃµØÅĞ¶Ï ¸ù¾İÏñËØÑÕÉ«ÅĞ¶Ï
+		if(å„æ£‹å­[i].PtInRect(pt)){
+			//TODO:æ›´å¥½åœ°åˆ¤æ–­ æ ¹æ®åƒç´ é¢œè‰²åˆ¤æ–­
 			input = i + 1;
 		}
 	if (input != 0)return;
-	//¼ì²é ¸÷°´Å¥µÄÇøÓò
-	for (i = 0; i < °´Å¥ÊıÁ¿; i++)
-		if (¸÷°´Å¥[i].PtInRect(pt)) {
+	//æ£€æŸ¥ å„æŒ‰é’®çš„åŒºåŸŸ
+	for (i = 0; i < æŒ‰é’®æ•°é‡; i++)
+		if (å„æŒ‰é’®[i].PtInRect(pt)) {
 			input = -(i + 1);
 		}
 	//restart,undo,redo
 	return;
 }
-//»æÍ¼
+//ç»˜å›¾
 void CHESSMFC::dc(CDC * pDC) {
 	for (i = 0; i < size; i++) {
-		if (chess[i] == ¿Õ)pDC->FillSolidRect(¸÷Æå×Ó + i, RGB(66, 66, 66));
-		if (chess[i] == Âú)pDC->FillSolidRect(¸÷Æå×Ó + i, RGB(128, 128, 190));
-		if (chess[i] == ±»Ñ¡ÖĞ)pDC->FillSolidRect(¸÷Æå×Ó + i, RGB(128, 190, 128));
+		if (chess[i] == ç©º)pDC->FillSolidRect(å„æ£‹å­ + i, RGB(66, 66, 66));
+		if (chess[i] == æ»¡)pDC->FillSolidRect(å„æ£‹å­ + i, RGB(128, 128, 190));
+		if (chess[i] == è¢«é€‰ä¸­)pDC->FillSolidRect(å„æ£‹å­ + i, RGB(128, 190, 128));
 	}
+	return;
+}
+void CHESSMFC::dbutton_text(CDC * pDC,int ord, COLORREF textrgb, char * text){
+	CFont cfdb; cfdb.CreatePointFont(å„æŒ‰é’®[ord].Height() * 10/4, (LPCTSTR)"é»‘ä½“");
+	pDC->SelectObject(cfdb); pDC->SetTextColor(textrgb);
+	pDC->TextOut(å„æŒ‰é’®[ord].CenterPoint().x - pDC->GetTextExtent(text).cx / 2
+		, å„æŒ‰é’®[ord].CenterPoint().y - pDC->GetTextExtent(text).cy / 2, text);
+	cfdb.DeleteObject();
 	return;
 }
 void CHESSMFC::dbutton(CDC * pDC){
 	int buttom[3]; buttom[0] = restart; buttom[1] = undo; buttom[2] = redo;
-	for (i = 0; i < °´Å¥ÊıÁ¿; i++){
-		if (buttom[i] == °´Å¥ÁÁ)pDC->FillSolidRect(¸÷°´Å¥ + i, RGB(128, 160 + i % 3 * 5, 128));
-		if (buttom[i] == °´Å¥Ãğ)pDC->FillSolidRect(¸÷°´Å¥ + i, RGB(128 / 2, 160 / 2 + i % 3 * 5, 128 / 2));
+	char btext[][16] = { "restart","undo","redo" }; COLORREF btextrgb = RGB(197, 224, 179);
+	for (i = 0; i < æŒ‰é’®æ•°é‡; i++){
+		if (buttom[i] == æŒ‰é’®äº®)pDC->FillSolidRect(å„æŒ‰é’® + i, RGB(128, 160 + i % 3 * 5, 128));
+		if (buttom[i] == æŒ‰é’®ç­)pDC->FillSolidRect(å„æŒ‰é’® + i, RGB(128 / 2, 160 / 2 + i % 3 * 5, 128 / 2));
+		dbutton_text(pDC, i, btextrgb, btext[i]);
 	}
 	return;
 }
-void CHESSMFC::dp(CDC * pDC){
-	pDC->FillSolidRect(&ÎÄ±¾Çø, RGB(190, 150, 128));
+void CHESSMFC::dp(CDC * pDC) {
+	//èƒŒæ™¯
+	pDC->FillSolidRect(&æ–‡æœ¬åŒº, RGB(190, 150, 128));
+	//MFCæ–¹æ³•è®¾ç½®å­—ä½“
+	int dx = 14, dy = 30;
+	CFont cfdp; 
+	cfdp.CreateFont(
+		dy,                       // nHeight
+		dx,                        // nWidth
+		0,                        // nEscapement
+		0,                        // nOrientation
+		FW_NORMAL,                // nWeight
+		FALSE,                    // bItalic
+		FALSE,                    // bUnderline
+		0,                        // cStrikeOut
+		ANSI_CHARSET,             // nCharSet
+		OUT_DEFAULT_PRECIS,       // nOutPrecision
+		CLIP_DEFAULT_PRECIS,      // nClipPrecision
+		DEFAULT_QUALITY,          // nQuality
+		DEFAULT_PITCH | FF_SWISS,  // nPitchAndFamily
+		(LPCTSTR)"é»‘ä½“");                // lpszFacename
+
+	pDC->SelectObject(cfdp);
+	pDC->SetTextColor(RGB(183, 71, 42));
+	pDC->SetBkMode(TRANSPARENT);
+	//è¾“å‡ºæ–‡æœ¬
+	CRect æ–‡æœ¬åŒº0 = æ–‡æœ¬åŒº;
+	æ–‡æœ¬åŒº0.DeflateRect(15, 15, 15, 15);
+	int x = æ–‡æœ¬åŒº0.left, y = æ–‡æœ¬åŒº0.top;
+	char c[32] = ""; int clen = 0;
+	for (i = 0; i < plen; i++) {
+		for (j = 0; j < 32; j++)c[j] = 0;
+		clen = sprintf(c, "%d->%d ", pa[i], pb[i]);
+		if (x + clen*dx > æ–‡æœ¬åŒº0.right) {
+			x = æ–‡æœ¬åŒº0.left; y += dy;
+		}
+		pDC->TextOut(x, y, c);
+		x += clen*dx;
+	}
+	cfdp.DeleteObject();
 	return;
 }
 void CHESSMFC::dmain(CDC * pDC){
@@ -249,21 +292,21 @@ void CHESSMFC::dmain(CDC * pDC){
 	return;
 }
 
-//»æÍ¼ Ö÷Á÷³Ì
+//ç»˜å›¾ ä¸»æµç¨‹
 void paintmain(CDC *pDC, CPoint pt, UINT nKeyold, CRect rlimit, int ot) {
 	static CHESSMFC *pcm = NULL;
 	if (pcm == NULL) { pcm = new CHESSMFC; pcm->cnew(6); pcm->creset(); }
-	//±³¾°
-	char t[] = "±³¾°", t2[] = "ºÃ£¡";
+	//èƒŒæ™¯
+	char t[] = "èƒŒæ™¯", t2[] = "å¥½ï¼";
 	int i, c = 0;
-	for (i = 0; i < pcm->size; i++)if (pcm->chess[i] != ¿Õ)c++;
-	if (c == 1)pcm->state = Í¨¹Ø;
-	if (pcm->state != Í¨¹Ø)
-		mutidotexample(pDC->m_hDC, pt, t, strlen(t), rlimit, ot);
-	else mutidotexample(pDC->m_hDC, pt, t2, strlen(t2), rlimit, ot);
-	//ÆåÅÌ
+	for (i = 0; i < pcm->size; i++)if (pcm->chess[i] != ç©º)c++;
+	if (c == 1)pcm->state = é€šå…³;
+	if (pcm->state != é€šå…³)
+		mutidotexample(pDC, pt, t, strlen(t), rlimit, ot);
+	else mutidotexample(pDC, pt, t2, strlen(t2), rlimit, ot);
+	//æ£‹ç›˜
 	static int nkold = 0;
-	pcm->dsetmain(rlimit);
+	pcm->dset(rlimit);
 	if (nkold != nKeyold) {
 		nkold = nKeyold;
 		if (nKeyold&MK_LBUTTON)
@@ -275,52 +318,49 @@ void paintmain(CDC *pDC, CPoint pt, UINT nKeyold, CRect rlimit, int ot) {
 	return;
 }
 
-//Ë«»º³åË¢ĞÂ
+//åŒç¼“å†²åˆ·æ–°
 void CMyFrameWnd::doublebuffer(CDC *pDC) {
-	//¶¨Òå¶ÔÏó
+	//å®šä¹‰å¯¹è±¡
 	CDC MemDC; CBitmap MemBitmap;
-	//Ê¹ÓÃº¯Êı³õÊ¼»¯1£º½¨Á¢ÓëÆÁÄ»ÏÔÊ¾¼æÈİµÄÄÚ´æÏÔÊ¾Éè±¸
+	//ä½¿ç”¨å‡½æ•°åˆå§‹åŒ–1ï¼šå»ºç«‹ä¸å±å¹•æ˜¾ç¤ºå…¼å®¹çš„å†…å­˜æ˜¾ç¤ºè®¾å¤‡
 	MemDC.CreateCompatibleDC(NULL);
-	//Ê¹ÓÃº¯Êı³õÊ¼»¯2£º½¨Á¢ÓëÆÁÄ»ÏÔÊ¾¼æÈİµÄÎ»Í¼
-	int nWidth = rlimit.right - rlimit.left, nHeight = rlimit.bottom - rlimit.top;
-	MemBitmap.CreateCompatibleBitmap(pDC, nWidth, nHeight);
-	//½«Î»Í¼ÓëÄÚ´æÏÔÊ¾Éè±¸½øĞĞÁ´½Ó
+	//ä½¿ç”¨å‡½æ•°åˆå§‹åŒ–2ï¼šå»ºç«‹ä¸å±å¹•æ˜¾ç¤ºå…¼å®¹çš„ä½å›¾
+	MemBitmap.CreateCompatibleBitmap(pDC, rlimit.Width(), rlimit.Height());
+	//å°†ä½å›¾ä¸å†…å­˜æ˜¾ç¤ºè®¾å¤‡è¿›è¡Œé“¾æ¥
 	CBitmap *pOldBit = MemDC.SelectObject(&MemBitmap);
-	//µ÷ÓÃ¹¦ÄÜ£ºÓÃ±³¾°É«½«Î»Í¼Çå³ı¸É¾»
-	MemDC.FillSolidRect(0, 0, nWidth, nHeight, RGB(196, 196, 240));
-	//»æÍ¼
+	//è°ƒç”¨åŠŸèƒ½ï¼šç”¨èƒŒæ™¯è‰²å°†ä½å›¾æ¸…é™¤å¹²å‡€
+	MemDC.FillSolidRect(0, 0, rlimit.Width(), rlimit.Height(), RGB(196, 196, 240));
+	//ç»˜å›¾
 	timenow = clock();
 	paintmain(&MemDC, ptold, nKeyold, rlimit, (int)(timenow - timeold));
 	timeold = timenow;
-	//Î»Í¼¸´ÖÆ£º´ÓÏÔÊ¾Éè±¸¸´ÖÆµ½Ö÷ÏÔÊ¾Éè±¸PDC ´ËÊ±Ë¢ĞÂ»­Ãæ
-	pDC->BitBlt(0, 0, nWidth, nHeight, &MemDC, 0, 0, SRCCOPY);
-	//Ê¹ÓÃº¯ÊıÇåÀí£ºÇåÀíÁ½¸ö¶ÔÏó
+	//ä½å›¾å¤åˆ¶ï¼šä»æ˜¾ç¤ºè®¾å¤‡å¤åˆ¶åˆ°ä¸»æ˜¾ç¤ºè®¾å¤‡PDC æ­¤æ—¶åˆ·æ–°ç”»é¢
+	pDC->BitBlt(0, 0, rlimit.Width(), rlimit.Height(), &MemDC, 0, 0, SRCCOPY);
+	//ä½¿ç”¨å‡½æ•°æ¸…ç†ï¼šæ¸…ç†ä¸¤ä¸ªå¯¹è±¡
 	MemBitmap.DeleteObject();
 	MemDC.DeleteDC();
 	return;
 }
-//»æÍ¼ÏûÏ¢·´Éä
+//ç»˜å›¾æ¶ˆæ¯åå°„
 void CMyFrameWnd::OnPaint() {
-	PAINTSTRUCT ps = { 0 };
-	HDC hdc = ::BeginPaint(this->m_hWnd, &ps);
-	CDC dc; dc.Attach(hdc);
-	doublebuffer(&dc);
-	::EndPaint(m_hWnd, &ps);
+	CDC *pDC = GetDC();
+	doublebuffer(pDC);
+	this->ReleaseDC(pDC);
 	return CFrameWnd::OnPaint();
 }
 
-//´°¿ÚÀà
+//çª—å£ç±»
 class CMyWinApp : public CWinApp {
 public: 
 	CMyWinApp() {};
 	virtual BOOL InitInstance() {
 		CMyFrameWnd* pFrame = new CMyFrameWnd;
-		pFrame->Create(NULL, (LPCTSTR)(L"MFC Èı½ÇĞÎ¶ÀÁ¢×êÊ¯"));
+		pFrame->Create(NULL, (LPCTSTR)("MFC ä¸‰è§’å½¢ç‹¬ç«‹é’»çŸ³"));
 		m_pMainWnd = pFrame;
 		pFrame->ShowWindow(SW_SHOW);
 		pFrame->UpdateWindow();
 		return TRUE; 
 	}
 };
-//´°¿Ú¶ÔÏó´´½¨
+//çª—å£å¯¹è±¡åˆ›å»º
 CMyWinApp theApp;
