@@ -1,18 +1,18 @@
 #include "stdafx.h"
 
-#ifndef µã»÷restart
-#define ¿Õ 0
-#define Âú 1
-#define ±»Ñ¡ÖĞ 2
-#define °´Å¥Ãğ 0
-#define °´Å¥ÁÁ 1
-#define ¿ª¾Ö 0
-#define ½øĞĞÖĞ 1
-#define ËÀÍö 2
-#define Í¨¹Ø 3
-#define µã»÷restart -1
-#define µã»÷undo -2
-#define µã»÷redo -3
+#ifndef ç‚¹å‡»restart
+#define ç©º 0
+#define æ»¡ 1
+#define è¢«é€‰ä¸­ 2
+#define æŒ‰é’®ç­ 0
+#define æŒ‰é’®äº® 1
+#define å¼€å±€ 0
+#define è¿›è¡Œä¸­ 1
+#define æ­»äº¡ 2
+#define é€šå…³ 3
+#define ç‚¹å‡»restart -1
+#define ç‚¹å‡»undo -2
+#define ç‚¹å‡»redo -3
 #endif
 #ifdef CHESS
 class CHESS {
@@ -24,21 +24,21 @@ public:
 	int *pa = NULL, *pb = NULL, plen, plenmax;
 	int input = 0;
 
-	void cnew(int size); void cdelete(); void creset();//·ÖÅä¿Õ¼ä
+	void cnew(int size); void cdelete(); void creset();//åˆ†é…ç©ºé—´
 
-	void fdir(int in, int*outx, int*outy, int*isexist);//ÓÎÏ·
+	void fdir(int in, int*outx, int*outy, int*isexist);//æ¸¸æˆ
 	void ford(int *ord, int x, int y, int*isexist);
 	void fmid(int a, int b, int *mid);
 	void fchoose(int input, int*o);
 	void fmain();
 
-	void pnormal(int a, int b); void pundo(); void predo();//³·»Ø¹¦ÄÜ
+	void pnormal(int a, int b); void pundo(); void predo();//æ’¤å›åŠŸèƒ½
 
-	void bundo(); void bredo(); void brestart();//°´Å¥
+	void bundo(); void bredo(); void brestart();//æŒ‰é’®
 };
 #endif
 
-//ÉêÇë¿Õ¼ä¡¢ÊÍ·Å¿Õ¼ä¡¢³õÊ¼»¯£¨ÊÇÉÏ²ã¶ÔÏó£¬ÎªÁË¿É¶ÁĞÔ²»Ê¹ÓÃ¹¹ÔìºÍÎö¹¹º¯Êı£©
+//ç”³è¯·ç©ºé—´ã€é‡Šæ”¾ç©ºé—´ã€åˆå§‹åŒ–ï¼ˆæ˜¯ä¸Šå±‚å¯¹è±¡ï¼Œä¸ºäº†å¯è¯»æ€§ä¸ä½¿ç”¨æ„é€ å’Œææ„å‡½æ•°ï¼‰
 void CHESS::cnew(int Y) {
 	ymax = Y; size = 0;
 	for (i = 1; i <= ymax; i++)size += i;
@@ -50,17 +50,17 @@ void CHESS::cdelete() {
 	delete[]chess; delete[]pa; delete[]pb; return;
 }
 void CHESS::creset() {
-	state = ¿ª¾Ö;
-	undo = °´Å¥Ãğ; redo = °´Å¥Ãğ; restart = °´Å¥Ãğ;
+	state = å¼€å±€;
+	undo = æŒ‰é’®ç­; redo = æŒ‰é’®ç­; restart = æŒ‰é’®ç­;
 	plen = 0; plenmax = plen;
 	for (i = 0; i < size; i++) {
-		chess[i] = Âú;
+		chess[i] = æ»¡;
 		pa[i] = 0; pb[i] = 0;
 	}
 	return;
 }
 
-//ÓÎÏ·ºËĞÄ¹¦ÄÜ
+//æ¸¸æˆæ ¸å¿ƒåŠŸèƒ½
 void CHESS::fdir(int in, int*outx, int*outy, int*isexist) {
 	*isexist = 1;
 	int s = 1, x, y = 1, s2 = 2;
@@ -77,7 +77,7 @@ void CHESS::ford(int *ord, int x, int y, int*isexist) {
 	int s = 0;
 	for (i = 1; i < y; i++) s += i;
 	s += x;
-	*ord = s; 
+	*ord = s;
 	return;
 }
 void CHESS::fchoose(int input, int*o) {
@@ -105,82 +105,82 @@ void CHESS::fmain() {
 	if (inp == 0)return;
 	switch (inp)
 	{
-	case µã»÷undo:if (c1 != 0) { chess[c1 - 1] = Âú; c1 = 0; };
+	case ç‚¹å‡»undo:if (c1 != 0) { chess[c1 - 1] = æ»¡; c1 = 0; };
 				bundo(); return;
-	case µã»÷redo:if (c1 != 0) { chess[c1 - 1] = Âú; c1 = 0; }
+	case ç‚¹å‡»redo:if (c1 != 0) { chess[c1 - 1] = æ»¡; c1 = 0; }
 				bredo(); return;
-	case µã»÷restart:if (c1 != 0) { chess[c1 - 1] = Âú; c1 = 0; }
+	case ç‚¹å‡»restart:if (c1 != 0) { chess[c1 - 1] = æ»¡; c1 = 0; }
 				   brestart(); return;
 	default:break;
 	}
-	if (state == ¿ª¾Ö) {
-		chess[inp-1] = ¿Õ;
-		pnormal(0, c1);
-		restart = °´Å¥ÁÁ;
-		undo = °´Å¥Ãğ;//µÚÒ»²½²»ÄÜ³·»Ø
-		state = ½øĞĞÖĞ;
+	if (state == å¼€å±€) {
+		chess[inp - 1] = ç©º;
+		pnormal(0, inp);
+		restart = æŒ‰é’®äº®;
+		undo = æŒ‰é’®ç­;//ç¬¬ä¸€æ­¥ä¸èƒ½æ’¤å›
+		state = è¿›è¡Œä¸­;
 		return;
 	}
-	if (state == ËÀÍö || state == Í¨¹Ø)return;
+	if (state == æ­»äº¡ || state == é€šå…³)return;
 
-	//²Ù×÷1
-	if (c1 == 0 && chess[inp - 1] == Âú) {
+	//æ“ä½œ1
+	if (c1 == 0 && chess[inp - 1] == æ»¡) {
 		c1 = inp;
-		chess[c1 - 1] = ±»Ñ¡ÖĞ;
+		chess[c1 - 1] = è¢«é€‰ä¸­;
 		fchoose(c1, o);
 		return;
 	}
 	if (c1 == 0)return;
-	//²Ù×÷2
-	if (chess[inp - 1] == Âú|| chess[inp - 1] == ±»Ñ¡ÖĞ) {
-		chess[c1 - 1] = Âú; c1 = 0; return;
+	//æ“ä½œ2
+	if (chess[inp - 1] == æ»¡ || chess[inp - 1] == è¢«é€‰ä¸­) {
+		chess[c1 - 1] = æ»¡; c1 = 0; return;
 	}
 	int mid;
-	if (chess[inp - 1] == ¿Õ)
+	if (chess[inp - 1] == ç©º)
 		for (i = 0; i < 6; i++)
 			if (inp == o[i]) {
 				fmid(c1, inp, &mid);
-				if (chess[mid - 1] == ¿Õ) {
-					chess[c1 - 1] = Âú; c1 = 0; return;
+				if (chess[mid - 1] == ç©º) {
+					chess[c1 - 1] = æ»¡; c1 = 0; return;
 				}
 				pnormal(c1, inp);
-				chess[inp - 1] = Âú;
-				chess[mid - 1] = ¿Õ;
-				chess[c1 - 1] = ¿Õ;
+				chess[inp - 1] = æ»¡;
+				chess[mid - 1] = ç©º;
+				chess[c1 - 1] = ç©º;
 				c1 = 0; return;
 			}
 }
 
-//ÖØ¿ª¡¢³·»Ø¡¢ÖØ×ö
+//é‡å¼€ã€æ’¤å›ã€é‡åš
 void CHESS::pnormal(int a, int b) {
 	pa[plen] = a; pb[plen] = b;
 	plen++; plenmax = plen;
-	undo = °´Å¥ÁÁ; redo = °´Å¥Ãğ; return;
+	undo = æŒ‰é’®äº®; redo = æŒ‰é’®ç­; return;
 }
 void CHESS::pundo() {
 	plen--;
-	state = ½øĞĞÖĞ;
+	state = è¿›è¡Œä¸­;
 	int mid; fmid(pa[plen], pb[plen], &mid);
-	chess[pb[plen] - 1] = ¿Õ; chess[mid - 1] = Âú; chess[pa[plen] - 1] = Âú;
-	if (plen == 1)undo = °´Å¥Ãğ;
-	redo = °´Å¥ÁÁ; return;
+	chess[pb[plen] - 1] = ç©º; chess[mid - 1] = æ»¡; chess[pa[plen] - 1] = æ»¡;
+	if (plen == 1)undo = æŒ‰é’®ç­;
+	redo = æŒ‰é’®äº®; return;
 }
 void CHESS::predo() {
 	int mid; fmid(pa[plen], pb[plen], &mid);
-	chess[pb[plen] - 1] = Âú; chess[mid - 1] = ¿Õ; chess[pa[plen] - 1] = ¿Õ;
+	chess[pb[plen] - 1] = æ»¡; chess[mid - 1] = ç©º; chess[pa[plen] - 1] = ç©º;
 	plen++;
-	if (plen == plenmax)redo = °´Å¥Ãğ;
-	undo = °´Å¥ÁÁ; return;
+	if (plen == plenmax)redo = æŒ‰é’®ç­;
+	undo = æŒ‰é’®äº®; return;
 }
 void CHESS::bundo() {
-	if (undo == °´Å¥Ãğ)return;
+	if (undo == æŒ‰é’®ç­)return;
 	pundo(); return;
 }
 void CHESS::bredo() {
-	if (redo == °´Å¥Ãğ)return;
+	if (redo == æŒ‰é’®ç­)return;
 	predo(); return;
 }
 void CHESS::brestart() {
-	if (restart == °´Å¥Ãğ)return;
+	if (restart == æŒ‰é’®ç­)return;
 	creset(); return;
 }
